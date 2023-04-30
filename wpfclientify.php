@@ -6,7 +6,7 @@
 *
 * @wordpress-plugin
 * Plugin Name:       WpfClientify
-* Plugin URI:        https://https://https://github.com/Efraimcat/wpfclientify/
+* Plugin URI:        https://github.com/Efraimcat/wpfclientify/
 * Description:       Funcionalidades para funos.es Clientify
 * Version:           1.0.2
 * Author:            Efraim Bayarri
@@ -18,7 +18,7 @@
 * Requires PHP: 	   7.4
 * Requires at least: 5.9
 * Tested up to: 	   6.2
-* GitHub Plugin URI: https://github.com/Efraimcat/wpfunosclientify
+* GitHub Plugin URI: https://github.com/Efraimcat/wpfclientify/
 */
 if ( ! defined( 'WPINC' ) ) {
 	die;

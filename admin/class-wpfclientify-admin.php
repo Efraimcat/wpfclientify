@@ -5,11 +5,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
 * The admin-specific functionality of the plugin.
 *
-* @link       https://efraim.cat
+* @link       https://github.com/Efraimcat/wpfclientify/
 * @since      1.0.0
 *
-* @package    Wpfapi
-* @subpackage Wpfapi/admin
+* @package    WpfClientify
+* @subpackage WpfClientify/admin
 */
 
 class Wpfclientify_Admin {

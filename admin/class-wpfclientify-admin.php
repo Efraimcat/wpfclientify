@@ -205,7 +205,7 @@ class Wpfclientify_Admin {
 
     if ( is_wp_error($request) ) {
       do_action('wpfunos_log', $userIP.' - '.'is_wp_error'  );
-      wp_mail ( 'efraim@efraim.cat' , 'Error Clientify Creación Deal' ,'Error Clientify deal '.$nombre. ' email '.$email , 'Content-Type: text/html; charset=UTF-8' );
+      wp_mail ( 'efraim@efraim.cat' , 'Error Clientify Creación Deal' ,'Error Clientify Deal '.$nombre. ' email '.$email , 'Content-Type: text/html; charset=UTF-8' );
       exit;
     }
     $bodyrequest = json_decode( $request['body'] );
@@ -213,6 +213,19 @@ class Wpfclientify_Admin {
     do_action('wpfunos_log', $userIP.' - '.'Deal $request[response][code]: ' . apply_filters('wpfunos_dumplog', $request['response']['code']  ) );
     do_action('wpfunos_log', $userIP.' - '.'Deal $request[response][message]: ' . apply_filters('wpfunos_dumplog', $request['response']['message']  ) );
 
+    $body = '{"name":"[origen]"}';
+    //Entrada datos usuario, Servicio botón Llamamos, Servicio botón Llamar, Servicio botón Presupuesto
+    $body = str_replace ( '[origen]', $origen, $body );
+
+    $request = wp_remote_post( $this->PostDealsUrl.$bodyrequest->id.'/tags/' , array( 'headers' => $headers, 'body' => $body,'method' => 'POST' ));
+
+    if ( is_wp_error($request) ) {
+      do_action('wpfunos_log', $userIP.' - '.'is_wp_error'  );
+      wp_mail ( 'efraim@efraim.cat' , 'Error Clientify Creación Etiqueta' ,'Error Clientify Etiqueta '.$nombre. ' email '.$email , 'Content-Type: text/html; charset=UTF-8' );
+      exit;
+    }
+    do_action('wpfunos_log', $userIP.' - '.'Tag $request[response][code]: ' . apply_filters('wpfunos_dumplog', $request['response']['code']  ) );
+    do_action('wpfunos_log', $userIP.' - '.'Tag $request[response][message]: ' . apply_filters('wpfunos_dumplog', $request['response']['message']  ) );
 
     $total = strtotime('now') - $timeFirst ;
     do_action('wpfunos_log', $userIP.' - '.'==> Clientify Crear deal usuario servicio END: '.$total.' sec.');

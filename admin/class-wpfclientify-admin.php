@@ -90,7 +90,15 @@ class Wpfclientify_Admin {
     $email = $params['email'];
     $telefono = $params['phone']; ;
     $nombre = $params['nombre'];
+
     $referer = get_transient( 'wpfunos-referer-' .$userIP );
+    $utm = get_transient( 'wpfunos-query-' .$userIP );
+    $pais = get_transient( 'geoip_' .$userIP );
+
+    $utm_source = ( $utm['utm_source'] != '' ) ? $utm['utm_source'] : '--' ;
+    $utm_medium = ( $utm['utm_medium'] != '' ) ? $utm['utm_medium'] : '--' ;
+    $utm_campaign = ( $utm['utm_campaign'] != '' ) ? $utm['utm_campaign'] : '--' ;
+    $utm_term =  ( $utm['utm_term'] != '' ) ? $utm['utm_term'] : '--' ;
 
     $tel = str_replace(" ","", $telefono );
     $tel = str_replace("-","",$tel );
@@ -98,18 +106,30 @@ class Wpfclientify_Admin {
 
     $headers = array( 'Authorization' => 'Token '.$this->clientifykey , 'Content-Type' => 'application/json');
     $body = '{
-      "first_name": "[first_name]",
-      "email": "[email]",
-      "phone": "[phone]",
+      "first_name":     "[first_name]",
+      "email":          "[email]",
+      "phone":          "[phone]",
       "contact_source": "[referer]",
-      "gdpr_accept": "TRUE"
+      "gdpr_accept":    "TRUE",
+      "custom_fields": [
+        {"field": "(contactos)utm_source",  "value": "[utm_source]"},
+        {"field": "(contactos)utm_medium",  "value": "[utm_medium]"},
+        {"field": "(contactos)utm_campaign","value": "[utm_campaign]"},
+        {"field": "(contactos)utm_term",    "value": "[utm_term]"},
+        {"field": "(contactos)pais",        "value": "[pais]"}
+      ]
     }';
 
-    $body = str_replace ( '[first_name]' , $nombre , $body );
-    $body = str_replace ( '[email]' , $email  , $body );
-    $body = str_replace ( '[referer]' , $referer  , $body );
-    $body = str_replace ( '[phone]' , $tel , $body );
-    //do_action('wpfunos_log', $userIP.' - '.'$body: ' . $body );
+    $body = str_replace ( '[first_name]' ,   $nombre ,       $body );
+    $body = str_replace ( '[email]' ,        $email  ,       $body );
+    $body = str_replace ( '[referer]' ,      $referer  ,     $body );
+    $body = str_replace ( '[phone]' ,        $tel ,          $body );
+    $body = str_replace ( '[utm_source]' ,   $utm_source ,   $body );
+    $body = str_replace ( '[utm_medium]' ,   $utm_medium ,   $body );
+    $body = str_replace ( '[utm_campaign]' , $utm_campaign , $body );
+    $body = str_replace ( '[utm_term]' ,     $utm_term ,     $body );
+    $body = str_replace ( '[pais]' ,         $pais ,         $body );
+    do_action('wpfunos_log', $userIP.' - '.'$body: ' . $body );
 
     $request = wp_remote_post( $this->PostContactsUrl, array( 'headers' => $headers, 'body' => $body,'method' => 'POST' ));
     if ( is_wp_error($request) ) {
@@ -162,7 +182,7 @@ class Wpfclientify_Admin {
 
     $headers = array( 'Authorization' => 'Token '.$this->clientifykey , 'Content-Type' => 'application/json');
     $body = '{
-      "name":"Nuevo deal para [first_name] [email]",
+      "name":"Oportunidad [origen] para [first_name]",
       "amount":"100",
       "contact":"https://api.clientify.net/v1/contacts/[clientID]/",
       "deal_source": "[form_name]",

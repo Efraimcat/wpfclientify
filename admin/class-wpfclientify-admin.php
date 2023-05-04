@@ -65,6 +65,7 @@ class Wpfclientify_Admin {
       $referencia = $params['referencia'];
       $cuando = $params['cuando'];
       $destino = $params['destino'];
+      $ataud = $params['ataud'];
       $velatorio = $params['velatorio'];
       $ceremonia = $params['ceremonia'];
       $origen = $params['origen'];
@@ -105,6 +106,7 @@ class Wpfclientify_Admin {
         "form_name" => $form_name,
         "cuando" => $cuando,
         "destino" => $destino,
+        "ataud" => $ataud,
         "velatorio" => $velatorio,
         "ceremonia" => $ceremonia,
         "origen" => $clientifyaction,
@@ -145,7 +147,7 @@ class Wpfclientify_Admin {
   /**
   *
   */
-  public function WpfClientifyShowContacts( $params ){
+  private function WpfClientifyShowContacts( $params ){
     $userIP = apply_filters('wpfunos_userIP','dummy');
     do_action('wpfunos_log', $userIP.' - '.'==> Clientify Mostrar contactos' );
     $timeFirst  = strtotime('now');
@@ -186,7 +188,7 @@ class Wpfclientify_Admin {
   /**
   *
   */
-  public function WpfClientifyCreateContact( $params ){
+  private function WpfClientifyCreateContact( $params ){
     $userIP = apply_filters('wpfunos_userIP','dummy');
     do_action('wpfunos_log', $userIP.' - '.'==> Clientify Crear contacto' );
     $timeFirst  = strtotime('now');
@@ -250,7 +252,7 @@ class Wpfclientify_Admin {
   *    "pipeline_desc": "nuevo",
   *  "pipeline_stage_desc": "ultima",
   */
-  public function WpfClientifyCreateDeal( $params ){
+  private function WpfClientifyCreateDeal( $params ){
     $userIP = apply_filters('wpfunos_userIP','dummy');
     do_action('wpfunos_log', $userIP.' - '.'==> Clientify Crear Deal' );
     $timeFirst  = strtotime('now');
@@ -276,6 +278,7 @@ class Wpfclientify_Admin {
       if( strlen( $params['referencia'] ) > 1 ) $body .= '{"field": "(oportunidades)referencia","value": "'.sanitize_text_field( $params['referencia'] ).'"},';
       if( strlen( $params['cuando']     ) > 1 ) $body .= '{"field": "(oportunidades)cuando",    "value": "'.sanitize_text_field( $params['cuando'] ).    '"},';
       if( strlen( $params['destino']    ) > 1 ) $body .= '{"field": "(oportunidades)destino",   "value": "'.sanitize_text_field( $params['destino'] ).   '"},';
+      if( strlen( $params['ataud']      ) > 1 ) $body .= '{"field": "(oportunidades)ataud",     "value": "'.sanitize_text_field( $params['ataud'] ).     '"},';
       if( strlen( $params['velatorio']  ) > 1 ) $body .= '{"field": "(oportunidades)velatorio", "value": "'.sanitize_text_field( $params['velatorio'] ). '"},';
       if( strlen( $params['ceremonia']  ) > 1 ) $body .= '{"field": "(oportunidades)ceremonia", "value": "'.sanitize_text_field( $params['ceremonia'] ). '"},';
       if( strlen( $params['origen']     ) > 1 ) $body .= '{"field": "(oportunidades)origen",    "value": "'.sanitize_text_field( $params['origen'] ).    '"},';
@@ -320,7 +323,7 @@ class Wpfclientify_Admin {
   /**
   * $confirmation = $this->WpfClientifyGetContact( $contacts );
   */
-  public function WpfClientifyGetContact( $id ){
+  private function WpfClientifyGetContact( $id ){
     $userIP = apply_filters('wpfunos_userIP','dummy');
     $URLclientify = $this->GetContactsUrl.$id. '/' ;
     //do_action('wpfunos_log', $userIP.' - '.'$URL: ' . $URLclientify  );
@@ -349,7 +352,7 @@ class Wpfclientify_Admin {
   *  "contactID" => $contacts,
   *);
   */
-  public function WpfClientifyChangePipeline( $params ){
+  private function WpfClientifyChangePipeline( $params ){
     $userIP = apply_filters('wpfunos_userIP','dummy');
     do_action('wpfunos_log', $userIP.' - '.'==> Clientify Cambiar pipelines' );
     $timeFirst  = strtotime('now');
@@ -360,23 +363,71 @@ class Wpfclientify_Admin {
     $request = wp_remote_post( $URLclientify, array( 'method' => 'GET', 'headers' => $headers, 'timeout' => 45  ) );
     $bodyrequest = json_decode( $request['body'] );
 
-    //$deals = $bodyrequest->deals
-    //foreach ($deals as $deal) {
-    //  do_action('wpfunos_log', $userIP.' - '.'$deal->id: ' .$deal->id );
-    //  do_action('wpfunos_log', $userIP.' - '.'$pipeline->: ' .$deal->pipeline );
-    //  do_action('wpfunos_log', $userIP.' - '.'$pipeline_stage->: ' .$deal->pipeline_stage );
-    //  $oportunidades[] = array( 'id' => $deal->id, 'pipeline' => $deal->pipeline, 'stage' => $deal->pipeline_stage );
-    //}
+    $oportunidades = [];
+    $funerarias = [];
+    $descartadas = [];
+    $aseguradoras = [];
+    $deals = $bodyrequest->deals;
+    foreach ($deals as $key => $deal) {
+      $oportunidades[] = array( 'id' => $deal->id, 'pipeline' => $deal->pipeline_desc, 'stage' => $deal->pipeline_stage_desc );
+      if( $deal->pipeline_desc == 'Servicios Funerarios')     $funerarias[] = array( 'id' => $deal->id, 'pipeline' => $deal->pipeline_desc, 'stage' => $deal->pipeline_stage_desc );
+      if( $deal->pipeline_desc== 'Oportunidades descartadas') $descartadas[] = array( 'id' => $deal->id, 'pipeline' => $deal->pipeline_desc, 'stage' => $deal->pipeline_stage_desc );
+      if( $deal->pipeline_desc == 'Aseguradoras')             $aseguradoras[] = array( 'id' => $deal->id, 'pipeline' => $deal->pipeline_desc, 'stage' => $deal->pipeline_stage_desc );
+    }
+
+    //do_action('wpfunos_log', $userIP.' - '.'$oportunidades: ' . apply_filters('wpfunos_dumplog', $oportunidades  ) );
+    /**
+    *[0] = </br> |   [id] = Number: 5082716</br> |   [pipeline] = String: 'Aseguradoras'</br> |   [stage] = String: 'Nuevo interesado'
+    *[1] = </br> |   [id] = Number: 5082543</br> |   [pipeline] = String: 'Aseguradoras'</br> |   [stage] = String: 'Nuevo interesado'
+    *[2] = </br> |   [id] = Number: 5082421</br> |   [pipeline] = String: 'Aseguradoras'</br> |   [stage] = String: 'Nuevo interesado'
+    *[3] = </br> |   [id] = Number: 5082304</br> |   [pipeline] = String: 'Servicios Funerarios'</br> |   [stage] = String: 'comparador funerarias''
+    */
+
+    do_action('wpfunos_log', $userIP.' - '.'Cantidad oportunidades: ' .count($oportunidades). ' (Servicios Funerarios: ' .count($funerarias). ' Oportunidades descartadas:' .count($descartadas). ' Aseguradoras: ' .count($aseguradoras). ')' );
+    //si tiene más de una oportunidad
 
 
 
+    //si tiene más de una oportunidad END
 
 
     $total = strtotime('now') - $timeFirst ;
     do_action('wpfunos_log', $userIP.' - '.'==> Clientify Cambiar pipelines END: '.$total.' sec.');
-    return ( $bodyrequest->id );
+    //return ( $bodyrequest->id );
+    return;
   }
 
+
+
+
+  /**
+  * $this->WpfClientifyUpdataDeal( $params );
+  *
+  *$params['id']
+  */
+  private function WpfClientifyUpdataDeal( $params ){
+    $userIP = apply_filters('wpfunos_userIP','dummy');
+    $URLclientify = $this->PostDealsUrl.$params['id']. '/' ;
+    do_action('wpfunos_log', $userIP.' - '.'$URL: ' . $URLclientify  );
+
+    $headers = array( 'Authorization' => 'Token '.$this->clientifykey , 'Content-Type' => 'application/json');
+    $body = '{
+      "pipeline_desc": "Oportunidades descartadas",
+      "pipeline_stage_desc":"Servicios funerarios descartados"
+    }';
+
+    $request = wp_remote_post( $URLclientify, array( 'headers' => $headers, 'body' => $body, 'method' => 'PATCH'  ) );
+
+    if ( is_wp_error($request) ) {
+      do_action('wpfunos_log', $userIP.' - '.'is_wp_error'  );
+      wp_mail ( 'efraim@efraim.cat' , 'Error Clientify mover oportunidades' ,'Error Clientify mover oportunidades '.sanitize_text_field($params['id']) , 'Content-Type: text/html; charset=UTF-8' );
+      exit;
+    }
+    $bodyrequest = json_decode( $request['body'] );
+    do_action('wpfunos_log', $userIP.' - '.'$bodyrequest: ' . apply_filters('wpfunos_dumplog', $bodyrequest  ) );
+    do_action('wpfunos_log', $userIP.' - '.'Deal $request[response][code]: ' . apply_filters('wpfunos_dumplog', $request['response']['code']  ) );
+    do_action('wpfunos_log', $userIP.' - '.'Deal $request[response][message]: ' . apply_filters('wpfunos_dumplog', $request['response']['message']  ) );
+  }
 
 
 

@@ -13,54 +13,94 @@ if ( ! defined( 'ABSPATH' ) ) {
 * @package    Wpfapi
 * @subpackage Wpfapi/admin/partials
 */
-
-(oportunidades)origen
-(oportunidades)ceremonia
-(oportunidades)velatorio
-(oportunidades)destino
-(oportunidades)contratante
-(oportunidades)difunto
-(oportunidades)cuando
-(oportunidades)ubicacion
-(oportunidades)referencia
-(oportunidades)precio
-(oportunidades)nombreServicio
-(oportunidades)nombreFuneraria
-(oportunidades)telefonoServicio
-
-
-// referencia.Tipo,ubicación,cuando,destino,velatorio,ceremonia
 {
-  "name":"Nuevo deal con pipeline desc y pipeline stage, fecha y custom fields",
-  "amount":"11.33",
-  "contact":"https://api.clientify.net/v1/contacts/integer/",
-  "company":"https://api.clientify.net/v1/companies/integer/",
-  "pipeline_desc": "nuevo",
-  "pipeline_stage_desc": "ultima",
-  "source": 3,
-  "deal_source": "Correo electrónico",
-  "expected_closed_date": "2019-11-30",
-  "custom_fields": [{"field": "quaderno_id","value": "cdn_1133"}]
+    "url": "https://api.clientify.net/v1/deals/pipelines/46018/",
+    "id": 46018,
+    "user_company": "Funos",
+    "name": "Servicios Funerarios",
+    "stages": [
+        {
+            "url": "https://api.clientify.net/v1/deals/pipelines/stages/194909/",
+            "id": 194909,
+            "pipeline": "https://api.clientify.net/v1/deals/pipelines/46018/",
+            "pipeline_desc": "Servicios Funerarios",
+            "name": "nuevo interesado",
+            "position": 0,
+            "probability": 0
+        },
+        {
+            "url": "https://api.clientify.net/v1/deals/pipelines/stages/196060/",
+            "id": 196060,
+            "pipeline": "https://api.clientify.net/v1/deals/pipelines/46018/",
+            "pipeline_desc": "Servicios Funerarios",
+            "name": "comparador funerarias",
+            "position": 1,
+            "probability": 0
+        },
+        {
+            "url": "https://api.clientify.net/v1/deals/pipelines/stages/196070/",
+            "id": 196070,
+            "pipeline": "https://api.clientify.net/v1/deals/pipelines/46018/",
+            "pipeline_desc": "Servicios Funerarios",
+            "name": "seleciono funeraria",
+            "position": 2,
+            "probability": 1
+        },
+        {
+            "url": "https://api.clientify.net/v1/deals/pipelines/stages/194910/",
+            "id": 194910,
+            "pipeline": "https://api.clientify.net/v1/deals/pipelines/46018/",
+            "pipeline_desc": "Servicios Funerarios",
+            "name": "no respondio",
+            "position": 3,
+            "probability": 0
+        },
+        {
+            "url": "https://api.clientify.net/v1/deals/pipelines/stages/194911/",
+            "id": 194911,
+            "pipeline": "https://api.clientify.net/v1/deals/pipelines/46018/",
+            "pipeline_desc": "Servicios Funerarios",
+            "name": "primer contacto",
+            "position": 4,
+            "probability": 1
+        },
+        {
+            "url": "https://api.clientify.net/v1/deals/pipelines/stages/194912/",
+            "id": 194912,
+            "pipeline": "https://api.clientify.net/v1/deals/pipelines/46018/",
+            "pipeline_desc": "Servicios Funerarios",
+            "name": "para nutrir",
+            "position": 5,
+            "probability": 1
+        },
+        {
+            "url": "https://api.clientify.net/v1/deals/pipelines/stages/194913/",
+            "id": 194913,
+            "pipeline": "https://api.clientify.net/v1/deals/pipelines/46018/",
+            "pipeline_desc": "Servicios Funerarios",
+            "name": "funeraria asignada",
+            "position": 6,
+            "probability": 6
+        },
+        {
+            "url": "https://api.clientify.net/v1/deals/pipelines/stages/194914/",
+            "id": 194914,
+            "pipeline": "https://api.clientify.net/v1/deals/pipelines/46018/",
+            "pipeline_desc": "Servicios Funerarios",
+            "name": "funeraria llamar al cliente",
+            "position": 7,
+            "probability": 7
+        },
+        {
+            "url": "https://api.clientify.net/v1/deals/pipelines/stages/194915/",
+            "id": 194915,
+            "pipeline": "https://api.clientify.net/v1/deals/pipelines/46018/",
+            "pipeline_desc": "Servicios Funerarios",
+            "name": "funeraria enviar presupuesto",
+            "position": 8,
+            "probability": 8
+        }
+    ],
+    "is_default": false,
+    "user_default": true
 }
-
-require_once 'HTTP/Request2.php';
-$request = new HTTP_Request2();
-$request->setUrl('https://api.clientify.net/v1/deals/');
-$request->setMethod(HTTP_Request2::METHOD_POST);
-$request->setConfig(array(
-'follow_redirects' => TRUE
-));
-$request->setHeader(array(
-'Authorization' => 'Token YOUR_CLIENTIFY_API_KEY',
-'Content-Type' => 'application/json'
-));
-
-
-$request->setBody('{\n
-  "name":"Staging deal from Postman",\n
-  "amount":"23452",\n
-  "contact":"https://api.clientify.net/v1/contacts/integer/",\n
-  "company":"https://api.clientify.net/v1/companies/integer/",\n
-  "pipeline":"https://api.clientify.net/v1/deal-pipelines/integer/",\n
-  "pipelineStage":"https://api.clientify.net/v1/deal-pipeline-stages/{{deal-pipeline-stages-id}}/"\n
-}');

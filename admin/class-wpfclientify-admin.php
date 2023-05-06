@@ -80,7 +80,7 @@ class Wpfclientify_Admin {
       $timeFirst  = strtotime('now');
 
       $contacts = $this->WpfClientifyShowContacts( array( "email" => $email, "phone" => $telefono, "nombre" => $nombre )  );
-      do_action('wpfunos_log', $userIP.' - '.'$contacts: ' . $contacts );
+      //do_action('wpfunos_log', $userIP.' - '.'$contacts: ' . $contacts );
 
       if( $contacts == ''){
         do_action('wpfunos_log', $userIP.' - '.'Nuevo usuario. ');
@@ -92,7 +92,10 @@ class Wpfclientify_Admin {
       do_action('wpfunos_log', $userIP.' - '.'ID usuario: ' . $contacts );
       update_post_meta( $user_id, 'wpfunos_userClientifyIDusuario', $contacts );
 
-      $confirmation = $this->WpfClientifyGetContact( $contacts );
+      // Confirmar contacto recibido
+      //
+      //$confirmation = $this->WpfClientifyGetContact( $contacts );
+      //
 
       $params = array(
         "pipeline" => $pipeline,
@@ -163,7 +166,8 @@ class Wpfclientify_Admin {
     $URLclientify = $this->GetContactsUrl.'?email=' .$email. '&phone=' .$tel. '&first_name=' .$nombre ;
     $headers = array( 'Authorization' => 'Token '.$this->clientifykey , 'Content-Type' => 'application/json');
 
-    do_action('wpfunos_log', $userIP.' - '.'$URL: ' . $URLclientify  );
+    do_action('wpfunos_log', $userIP.' - '.'Búsqueda: ' .$email. ' - ' .$tel );
+    //do_action('wpfunos_log', $userIP.' - '.'$URL: ' . $URLclientify  );
     //do_action('wpfunos_log', $userIP.' - '.'$headers: ' . apply_filters('wpfunos_dumplog', $headers   ) );
 
     $request = wp_remote_post( $URLclientify, array( 'method' => 'GET', 'headers' => $headers, 'timeout' => 45  ) );
@@ -219,7 +223,7 @@ class Wpfclientify_Admin {
       if( strlen( $utm['utm_medium']   ) > 1 ) $body .= '{"field": "(contactos)utm_medium",   "value": "'.sanitize_text_field( $utm['utm_medium'] ).  '"},';
       if( strlen( $utm['utm_campaign'] ) > 1 ) $body .= '{"field": "(contactos)utm_campaign", "value": "'.sanitize_text_field( $utm['utm_campaign'] ).'"},';
       if( strlen( $utm['utm_term']     ) > 1 ) $body .= '{"field": "(contactos)utm_term",     "value": "'.sanitize_text_field( $utm['utm_term'] ).    '"},';
-      $body .= '{"field": "(contactos)pais", "value": "' .sanitize_text_field( $pais ). '"}]
+      $body .= '{"field": "(contactos)pais", "value": "' .sanitize_text_field( $pais ). '"},{"field": "(contactos)ip", "value": "' .sanitize_text_field( $userIP ). '"}]
     }';
     //do_action('wpfunos_log', $userIP.' - '.'$body: ' . $body );
 
@@ -286,7 +290,7 @@ class Wpfclientify_Admin {
       if( strlen( $params['nombreServicio']   ) > 1 ) $body .= '{"field": "(oportunidades)nombreServicio",  "value": "'.sanitize_text_field( $params['nombreServicio'] ).  '"},';
       if( strlen( $params['nombreFuneraria']  ) > 1 ) $body .= '{"field": "(oportunidades)nombreFuneraria", "value": "'.sanitize_text_field( $params['nombreFuneraria'] ). '"},';
       if( strlen( $params['telefonoServicio'] ) > 1 ) $body .= '{"field": "(oportunidades)telefonoServicio","value": "'.sanitize_text_field( $params['telefonoServicio'] ).'"},';
-      $body .= '{"field": "(oportunidades)origen",    "value": "' .sanitize_text_field( $params['origen'] ). '"}]
+      $body .= '{"field": "(oportunidades)origen",    "value": "' .sanitize_text_field( $params['origen'] ). '"},{"field": "(oportunidades)ip",    "value": "' .sanitize_text_field( $userIP ). '"}]
     }';
     //do_action('wpfunos_log', $userIP.' - '.'$body: ' . $body );
     $request = wp_remote_post( $this->PostDealsUrl, array( 'headers' => $headers, 'body' => $body,'method' => 'POST' ));
@@ -384,21 +388,19 @@ class Wpfclientify_Admin {
     */
 
     do_action('wpfunos_log', $userIP.' - '.'Cantidad oportunidades: ' .count($oportunidades). ' (Servicios Funerarios: ' .count($funerarias). ' Oportunidades descartadas:' .count($descartadas). ' Aseguradoras: ' .count($aseguradoras). ')' );
+
     //si tiene más de una oportunidad
-
-
-
+    // SOLO QUEDA EL ÚLTIMO
+    foreach ($funerarias as $key => $funeraria) {
+      if ( $key != 0) $this->WpfClientifyUpdataDeal( array( "id" => $funeraria['id']) );
+    }
     //si tiene más de una oportunidad END
-
 
     $total = strtotime('now') - $timeFirst ;
     do_action('wpfunos_log', $userIP.' - '.'==> Clientify Cambiar pipelines END: '.$total.' sec.');
     //return ( $bodyrequest->id );
     return;
   }
-
-
-
 
   /**
   * $this->WpfClientifyUpdataDeal( $params );
@@ -407,14 +409,21 @@ class Wpfclientify_Admin {
   */
   private function WpfClientifyUpdataDeal( $params ){
     $userIP = apply_filters('wpfunos_userIP','dummy');
+    do_action('wpfunos_log', $userIP.' - '.'ID: ' . $params['id'] );
     $URLclientify = $this->PostDealsUrl.$params['id']. '/' ;
-    do_action('wpfunos_log', $userIP.' - '.'$URL: ' . $URLclientify  );
+    //do_action('wpfunos_log', $userIP.' - '.'$URL: ' . $URLclientify  );
 
     $headers = array( 'Authorization' => 'Token '.$this->clientifykey , 'Content-Type' => 'application/json');
     $body = '{
-      "pipeline_desc": "Oportunidades descartadas",
-      "pipeline_stage_desc":"Servicios funerarios descartados"
+      "pipeline": "https://api.clientify.net/v1/deals/pipelines/46310/",
+      "pipeline_stage":"https://api.clientify.net/v1/deals/pipelines/stages/196246/"
     }';
+
+    /**curl --location --request PATCH 'https://api.clientify.net/v1/deals/5089205/' \
+    --header 'Authorization: Token 4a02e84dc80e316cca5decab08f0839469f92e95' \
+    --header 'Content-Type: application/json' \
+    --data '{ "pipeline": "https://api.clientify.net/v1/deals/pipelines/46310/","pipeline_stage":"https://api.clientify.net/v1/deals/pipelines/stages/196246/" }'
+    */
 
     $request = wp_remote_post( $URLclientify, array( 'headers' => $headers, 'body' => $body, 'method' => 'PATCH'  ) );
 
@@ -424,7 +433,7 @@ class Wpfclientify_Admin {
       exit;
     }
     $bodyrequest = json_decode( $request['body'] );
-    do_action('wpfunos_log', $userIP.' - '.'$bodyrequest: ' . apply_filters('wpfunos_dumplog', $bodyrequest  ) );
+    //do_action('wpfunos_log', $userIP.' - '.'$bodyrequest: ' . apply_filters('wpfunos_dumplog', $bodyrequest  ) );
     do_action('wpfunos_log', $userIP.' - '.'Deal $request[response][code]: ' . apply_filters('wpfunos_dumplog', $request['response']['code']  ) );
     do_action('wpfunos_log', $userIP.' - '.'Deal $request[response][message]: ' . apply_filters('wpfunos_dumplog', $request['response']['message']  ) );
   }

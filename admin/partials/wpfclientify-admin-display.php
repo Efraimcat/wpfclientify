@@ -227,5 +227,77 @@ $bodyrequest: Object (stdClass)
  |   |   created -> String: '2023-04-28T12:33:58.161162+02:00'</br>
  |   |   modified -> String: '2023-04-28T12:36:52.355944+02:00'</br>
  |   |   last_contact -> NULL'
-
   -->
+
+<!-- WEBHOOK
+{
+  "hook": {
+    "event": "deal.saved",
+    "target": "https://webhook.site/8a556893-a0ec-4b8f-a081-256a215ecc6a",
+    "id": 3657
+  },
+  "data": {
+    "tasks": [],
+    "probability": "0%",
+    "pipeline_stage": "Servicios funerarios descartados",
+    "expected_closed_date": "2023-05-14T00:00:00",
+    "owner": "Alejandro López",
+    "id": 5104288,
+    "custom_fields": [
+      {
+        "field": "(oportunidades)ip",
+        "value": "80.29.72.33"
+      },
+      {
+        "field": "(oportunidades)origen",
+        "value": "Comparador funerarias"
+      },
+      {
+        "field": "(oportunidades)ceremonia",
+        "value": "Solo sala"
+      },
+      {
+        "field": "(oportunidades)velatorio",
+        "value": "Sin velatorio"
+      },
+      {
+        "field": "(oportunidades)ataud",
+        "value": "Ataúd económico"
+      },
+      {
+        "field": "(oportunidades)destino",
+        "value": "Incineración"
+      },
+      {
+        "field": "(oportunidades)cuando",
+        "value": "Proximamente"
+      },
+      {
+        "field": "(oportunidades)referencia",
+        "value": "funos-1139467810"
+      },
+      {
+        "field": "(oportunidades)ubicacion",
+        "value": "Denia/Dènia"
+      }
+    ],
+    "involved_contacts": [],
+    "source": null,
+    "contact_phone": "619830900",
+    "events": [],
+    "status": "Abierta",
+    "tags": [
+      "comparador funerarias"
+    ],
+    "company": "",
+    "contact_email": "sandraykeke08@gmail.com",
+    "remarks": "",
+    "pipeline": "Oportunidades descartadas",
+    "name": "Comparador funerarias",
+    "created": "2023-05-07T18:02:41.384893Z",
+    "amount": "0,00 €",
+    "contact": "Sandra",
+    "involved_companies": []
+  }
+}
+-->

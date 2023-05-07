@@ -264,13 +264,13 @@ class Wpfclientify_Admin {
     if( $params['cambios'] == 'distancia' ) return;
 
     $fechaentrega = new DateTime("now", new DateTimeZone('Europe/Madrid'));
-    $fechaentrega->modify("+7 days");
+    $fechaentrega->modify("+2 days");
 
     $headers = array( 'Authorization' => 'Token '.$this->clientifykey , 'Content-Type' => 'application/json');
     $body = '{
-      "name":  "'.sanitize_text_field( $params['origen'] ). ' de '.sanitize_text_field($params['nombre']).'",
+      "name":  "'.sanitize_text_field( $params['origen'] ).'",
       "owner": "'.sanitize_text_field( get_option( 'wpfunos_APIClientifyActionsUser' )).'",
-      "amount":"100",
+      "amount":"0,00 €",
       "contact":"https://api.clientify.net/v1/contacts/'.sanitize_text_field($params['contactID']).'/",
       "pipeline_desc": "'.sanitize_text_field( $params['pipeline'] ).'",
       "pipeline_stage_desc":"'.sanitize_text_field( $params['stage'] ).'",
@@ -373,26 +373,36 @@ class Wpfclientify_Admin {
     $aseguradoras = [];
     $deals = $bodyrequest->deals;
     foreach ($deals as $key => $deal) {
-      $oportunidades[] = array( 'id' => $deal->id, 'pipeline' => $deal->pipeline_desc, 'stage' => $deal->pipeline_stage_desc );
-      if( $deal->pipeline_desc == 'Servicios Funerarios')     $funerarias[] = array( 'id' => $deal->id, 'pipeline' => $deal->pipeline_desc, 'stage' => $deal->pipeline_stage_desc );
+
+      foreach ($deal->custom_fields as $key => $value) {
+        if( $value->field == '(oportunidades)origen') $origen = $value->value;
+      }
+
+      $oportunidades[] = array( 'id' => $deal->id, 'pipeline' => $deal->pipeline_desc, 'stage' => $deal->pipeline_stage_desc);
+      if( $deal->pipeline_desc == 'Servicios Funerarios')     $funerarias[] = array( 'id' => $deal->id, 'pipeline' => $deal->pipeline_desc, 'stage' => $deal->pipeline_stage_desc, 'origen'  => $origen  );
       if( $deal->pipeline_desc== 'Oportunidades descartadas') $descartadas[] = array( 'id' => $deal->id, 'pipeline' => $deal->pipeline_desc, 'stage' => $deal->pipeline_stage_desc );
       if( $deal->pipeline_desc == 'Aseguradoras')             $aseguradoras[] = array( 'id' => $deal->id, 'pipeline' => $deal->pipeline_desc, 'stage' => $deal->pipeline_stage_desc );
     }
 
-    //do_action('wpfunos_log', $userIP.' - '.'$oportunidades: ' . apply_filters('wpfunos_dumplog', $oportunidades  ) );
+    //Servicio botón Presupuesto
+
+    //do_action('wpfunos_log', $userIP.' - '.'$oportunidades: ' . apply_filters('wpfunos_dumplog', $funerarias  ) );
     /**
     *[0] = </br> |   [id] = Number: 5082716</br> |   [pipeline] = String: 'Aseguradoras'</br> |   [stage] = String: 'Nuevo interesado'
     *[1] = </br> |   [id] = Number: 5082543</br> |   [pipeline] = String: 'Aseguradoras'</br> |   [stage] = String: 'Nuevo interesado'
     *[2] = </br> |   [id] = Number: 5082421</br> |   [pipeline] = String: 'Aseguradoras'</br> |   [stage] = String: 'Nuevo interesado'
     *[3] = </br> |   [id] = Number: 5082304</br> |   [pipeline] = String: 'Servicios Funerarios'</br> |   [stage] = String: 'comparador funerarias''
     */
-
-    do_action('wpfunos_log', $userIP.' - '.'Cantidad oportunidades: ' .count($oportunidades). ' (Servicios Funerarios: ' .count($funerarias). ' Oportunidades descartadas:' .count($descartadas). ' Aseguradoras: ' .count($aseguradoras). ')' );
+    /**
+    *[0] = </br> |   [id] = Number: 5103308</br> |   [pipeline] = String: 'Servicios Funerarios'</br> |   [stage] = String: 'seleciono funeraria'</br> |   [origen] = String: 'Servicio botón Presupuesto'
+    *[1] = </br> |   [id] = Number: 5103303</br> |   [pipeline] = String: 'Servicios Funerarios'</br> |   [stage] = String: 'seleciono funeraria'</br> |   [origen] = String: 'Servicio botón Llamar''
+    */
+    //do_action('wpfunos_log', $userIP.' - '.'Cantidad oportunidades: ' .count($oportunidades). ' (Servicios Funerarios: ' .count($funerarias). ' Oportunidades descartadas:' .count($descartadas). ' Aseguradoras: ' .count($aseguradoras). ')' );
 
     //si tiene más de una oportunidad
-    // SOLO QUEDA EL ÚLTIMO
+    // SOLO QUEDA EL ÚLTIMO SI NO ES 'seleciono funeraria'
     foreach ($funerarias as $key => $funeraria) {
-      if ( $key != 0) $this->WpfClientifyUpdataDeal( array( "id" => $funeraria['id']) );
+      if ( $key != 0 && $funeraria['stage'] != 'seleciono funeraria' ) $this->WpfClientifyUpdataDeal( array( "id" => $funeraria['id']) );
     }
     //si tiene más de una oportunidad END
 

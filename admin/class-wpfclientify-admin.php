@@ -11,6 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 * @package    WpfClientify
 * @subpackage WpfClientify/admin
 */
+require_once 'class-wpfclientify-admin-master.php';
 
 class Wpfclientify_Admin {
 
@@ -52,95 +53,36 @@ class Wpfclientify_Admin {
     }
 
     if( get_option('wpfunos_APIClientifyActivaClientify') ){
-      $clientifyaction = $params['clientifyaction'];
-      $pipeline = $params['pipeline'];
-      $stage = $params['stage'];
-      $cambios = $params['cambios'];
-      $user_id = $params['user_id'];
-      $email = $params['email'];
-      $telefono = $params['phone'];
-      $nombre = $params['nombre'];
-      $form_name = $params['form_name'];
-      $ubicacion = $params['ubicacion'];
-      $referencia = $params['referencia'];
-      $cuando = $params['cuando'];
-      $destino = $params['destino'];
-      $ataud = $params['ataud'];
-      $velatorio = $params['velatorio'];
-      $ceremonia = $params['ceremonia'];
-      $origen = $params['origen'];
-      $precio = $params['precio'];
-      $nombreServicio = $params['nombreServicio'];
-      $nombreFuneraria = $params['nombreFuneraria'];
-      $telefonoServicio = $params['telefonoServicio'];
 
       $userIP = apply_filters('wpfunos_userIP','dummy');
 
-      do_action('wpfunos_log', $userIP.' - '.'==> Envio Clientify ' .$clientifyaction );
+      do_action('wpfunos_log', $userIP.' - '.'==> ENVIO CLIENTIFY ' .$params['clientifyaction'] );
       $timeFirst  = strtotime('now');
 
-      $contacts = $this->WpfClientifyShowContacts( array( "email" => $email, "phone" => $telefono, "nombre" => $nombre )  );
-      //do_action('wpfunos_log', $userIP.' - '.'$contacts: ' . $contacts );
+      $contacts = $this->WpfClientifyShowContacts( array( "email" => $params['email'], "phone" => $params['phone'], "nombre" => $params['nombre'] )  );
 
       if( $contacts == ''){
-        do_action('wpfunos_log', $userIP.' - '.'Nuevo usuario. ');
-        $contacts = $this->WpfClientifyCreateContact( array( "email" => $email, "phone" => $telefono, "nombre" => $nombre )  );
+        $contacts = $this->WpfClientifyCreateContact( array( "email" => $params['email'], "phone" => $params['phone'], "nombre" => $params['nombre'] )  );
+        do_action('wpfunos_log', $userIP.' - '.'Nuevo usuario ' .$contacts );
       }else{
-        do_action('wpfunos_log', $userIP.' - '.'Usuario ya existente');
+        do_action('wpfunos_log', $userIP.' - '.'Usuario ya existente ' .$contacts);
       }
-
-      do_action('wpfunos_log', $userIP.' - '.'ID usuario: ' . $contacts );
       update_post_meta( $user_id, 'wpfunos_userClientifyIDusuario', $contacts );
-
+      $params["contactID"] = $contacts;
       // Confirmar contacto recibido
       //
       //$confirmation = $this->WpfClientifyGetContact( $contacts );
       //
-
-      $params = array(
-        "pipeline" => $pipeline,
-        "stage" => $stage,
-        "email" => $email,
-        "cambios" => $cambios,
-        "nombre" => $nombre,
-        "contactID" => $contacts,
-        "ubicacion" => $ubicacion,
-        "referencia" => $referencia,
-        "form_name" => $form_name,
-        "cuando" => $cuando,
-        "destino" => $destino,
-        "ataud" => $ataud,
-        "velatorio" => $velatorio,
-        "ceremonia" => $ceremonia,
-        "origen" => $clientifyaction,
-        "precio" => $precio,
-        "nombreServicio" => $nombreServicio,
-        "nombreFuneraria" => $nombreFuneraria,
-        "telefonoServicio" => $telefonoServicio,
-      );
       $deals = $this->WpfClientifyCreateDeal( $params );
-      do_action('wpfunos_log', $userIP.' - '.'ID deal: ' . $deals );
       update_post_meta( $user_id, 'wpfunos_userClientifyIDdeal', $deals );
 
       //
       // Cambiar pipelines
       //
-      $params = array(
-        "pipeline" => $pipeline,
-        "stage" => $stage,
-        "email" => $email,
-        "cambios" => $cambios,
-        "nombre" => $nombre,
-        "contactID" => $contacts,
-      );
       $pipeline = $this->WpfClientifyChangePipeline( $params );
-      //
-      // Cambiar pipelines
-      //
-
 
       $total = strtotime('now') - $timeFirst ;
-      do_action('wpfunos_log', $userIP.' - '.'==> Envio Clientify ' .$clientifyaction.' END: '.$total.' sec.');
+      do_action('wpfunos_log', $userIP.' - '.'==> ENVIO CLIENTIFY ' .$params['clientifyaction'].' END: '.$total.' sec.');
     }
   }
 
@@ -155,34 +97,21 @@ class Wpfclientify_Admin {
     do_action('wpfunos_log', $userIP.' - '.'==> Clientify Mostrar contactos' );
     $timeFirst  = strtotime('now');
 
-    $email = $params['email'];
-    $telefono = $params['phone']; ;
-    $nombre = $params['nombre'];
+    $tel = str_replace( array( '-', '+34', ' ' ), '', $params['phone'] );
 
-    $tel = str_replace(" ","", $telefono );
-    $tel = str_replace("-","",$tel );
-    $tel = str_replace("+34","",$tel );
-
-    $URLclientify = $this->GetContactsUrl.'?email=' .$email. '&phone=' .$tel. '&first_name=' .$nombre ;
+    $URLclientify = $this->GetContactsUrl.'?email=' .$params['email']. '&phone=' .$tel. '&first_name=' .$params['nombre'] ;
     $headers = array( 'Authorization' => 'Token '.$this->clientifykey , 'Content-Type' => 'application/json');
 
-    do_action('wpfunos_log', $userIP.' - '.'Búsqueda: ' .$email. ' - ' .$tel );
-    //do_action('wpfunos_log', $userIP.' - '.'$URL: ' . $URLclientify  );
-    //do_action('wpfunos_log', $userIP.' - '.'$headers: ' . apply_filters('wpfunos_dumplog', $headers   ) );
+    do_action('wpfunos_log', $userIP.' - '.'Búsqueda: ' .$params['email']. ' - ' .$tel );
 
     $request = wp_remote_post( $URLclientify, array( 'method' => 'GET', 'headers' => $headers, 'timeout' => 45  ) );
     if ( is_wp_error($request) ) {
       do_action('wpfunos_log', $userIP.' - '.'is_wp_error'  );
-      wp_mail ( 'efraim@efraim.cat' , 'Error Clientify' ,'Error Clientify usuario '.$nombre. ' email '.$email , 'Content-Type: text/html; charset=UTF-8' );
+      wp_mail ( 'efraim@efraim.cat' , 'Error Clientify' ,'Error Clientify usuario '.$params['nombre']. ' email '.$params['email'] , 'Content-Type: text/html; charset=UTF-8' );
       exit;
     }
-    //[response] = </br> |   [code] = Number: 200</br> |   [message] = String: 'OK'
     $bodyrequest = json_decode( $request['body'] );
-    //do_action('wpfunos_log', $userIP.' - '.'$bodyrequest: ' . apply_filters('wpfunos_dumplog', $bodyrequest  ) );
-    do_action('wpfunos_log', $userIP.' - '.'Búsqueda $request[response][code]: ' . apply_filters('wpfunos_dumplog', $request['response']['code']  ) );
-    do_action('wpfunos_log', $userIP.' - '.'Búsqueda $request[response][message]: ' . apply_filters('wpfunos_dumplog', $request['response']['message']  ) );
-    do_action('wpfunos_log', $userIP.' - '.'Búsqueda $bodyrequest->count: ' . apply_filters('wpfunos_dumplog',  $bodyrequest->count  ) );
-    do_action('wpfunos_log', $userIP.' - '.'Búsqueda $bodyrequest->results[0]->id: ' . apply_filters('wpfunos_dumplog', $bodyrequest->results[0]->id ) );
+    do_action('wpfunos_log', $userIP.' - '.'Búsqueda: ' . $request['response']['message'] );
 
     $total = strtotime('now') - $timeFirst ;
     do_action('wpfunos_log', $userIP.' - '.'==> Clientify Mostrar contactos END: '.$total.' sec.');
@@ -199,16 +128,13 @@ class Wpfclientify_Admin {
 
     $referer = get_transient( 'wpfunos-referer-' .$userIP );
     $utm = get_transient( 'wpfunos-query-' .$userIP );
+    $tel = str_replace( array( '-', '+34', ' ' ), '', $params['phone'] );
     $pais = get_transient( 'geoip_' .$userIP );
     if( strlen($pais) < 1) $pais = 'ES';
 
     if( site_url() === 'https://dev.funos.es' ){
       $referer = 'https://dev.funos.es/';
     }
-
-    $tel = str_replace(" ","", $params['phone'] );
-    $tel = str_replace("-","",$tel );
-    $tel = str_replace("+34","",$tel );
 
     $headers = array( 'Authorization' => 'Token '.$this->clientifykey , 'Content-Type' => 'application/json');
     $body = '{
@@ -225,7 +151,6 @@ class Wpfclientify_Admin {
       if( strlen( $utm['utm_term']     ) > 1 ) $body .= '{"field": "(contactos)utm_term",     "value": "'.sanitize_text_field( $utm['utm_term'] ).    '"},';
       $body .= '{"field": "(contactos)pais", "value": "' .sanitize_text_field( $pais ). '"},{"field": "(contactos)ip", "value": "' .sanitize_text_field( $userIP ). '"}]
     }';
-    //do_action('wpfunos_log', $userIP.' - '.'$body: ' . $body );
 
     $request = wp_remote_post( $this->PostContactsUrl, array( 'headers' => $headers, 'body' => $body,'method' => 'POST' ));
     if ( is_wp_error($request) ) {
@@ -239,10 +164,7 @@ class Wpfclientify_Admin {
     }
 
     $bodyrequest = json_decode( $request['body'] );
-    //do_action('wpfunos_log', $userIP.' - '.'$bodyrequest: ' . apply_filters('wpfunos_dumplog', $bodyrequest  ) );
-    do_action('wpfunos_log', $userIP.' - '.'Búsqueda $request[response][code]: ' . apply_filters('wpfunos_dumplog', $request['response']['code']  ) );
-    do_action('wpfunos_log', $userIP.' - '.'Búsqueda $request[response][message]: ' . apply_filters('wpfunos_dumplog', $request['response']['message']  ) );
-    do_action('wpfunos_log', $userIP.' - '.'Búsqueda $bodyrequest->id: ' . apply_filters('wpfunos_dumplog', $bodyrequest->id ) );
+    do_action('wpfunos_log', $userIP.' - '.'Crear contacto: ' .$request['response']['message'] );
 
     $total = strtotime('now') - $timeFirst ;
     do_action('wpfunos_log', $userIP.' - '.'==> Clientify Crear contacto END: '.$total.' sec.');
@@ -266,11 +188,13 @@ class Wpfclientify_Admin {
     $fechaentrega = new DateTime("now", new DateTimeZone('Europe/Madrid'));
     $fechaentrega->modify("+2 days");
 
+    $amount = intval( str_replace( array('.', '€'), '', $params['precio'] ) );
+
     $headers = array( 'Authorization' => 'Token '.$this->clientifykey , 'Content-Type' => 'application/json');
     $body = '{
-      "name":  "'.sanitize_text_field( $params['origen'] ).'",
+      "name":  "'.sanitize_text_field( $params['clientifyaction'] ).'",
       "owner": "'.sanitize_text_field( get_option( 'wpfunos_APIClientifyActionsUser' )).'",
-      "amount":"0,00 €",
+      "amount":"'.$amount.'",
       "contact":"https://api.clientify.net/v1/contacts/'.sanitize_text_field($params['contactID']).'/",
       "pipeline_desc": "'.sanitize_text_field( $params['pipeline'] ).'",
       "pipeline_stage_desc":"'.sanitize_text_field( $params['stage'] ).'",
@@ -292,7 +216,6 @@ class Wpfclientify_Admin {
       if( strlen( $params['telefonoServicio'] ) > 1 ) $body .= '{"field": "(oportunidades)telefonoServicio","value": "'.sanitize_text_field( $params['telefonoServicio'] ).'"},';
       $body .= '{"field": "(oportunidades)origen",    "value": "' .sanitize_text_field( $params['origen'] ). '"},{"field": "(oportunidades)ip",    "value": "' .sanitize_text_field( $userIP ). '"}]
     }';
-    //do_action('wpfunos_log', $userIP.' - '.'$body: ' . $body );
     $request = wp_remote_post( $this->PostDealsUrl, array( 'headers' => $headers, 'body' => $body,'method' => 'POST' ));
 
     if ( is_wp_error($request) ) {
@@ -301,10 +224,9 @@ class Wpfclientify_Admin {
       exit;
     }
     $bodyrequest = json_decode( $request['body'] );
-    //do_action('wpfunos_log', $userIP.' - '.'$bodyrequest: ' . apply_filters('wpfunos_dumplog', $bodyrequest  ) );
-    do_action('wpfunos_log', $userIP.' - '.'Deal $request[response][code]: ' . apply_filters('wpfunos_dumplog', $request['response']['code']  ) );
-    do_action('wpfunos_log', $userIP.' - '.'Deal $request[response][message]: ' . apply_filters('wpfunos_dumplog', $request['response']['message']  ) );
+    do_action('wpfunos_log', $userIP.' - '.'Crear Deal ' .$bodyrequest->id. ': ' .$request['response']['message'] );
 
+    // TAG
     $body = '{"name":"' .sanitize_text_field( $params['origen'] ). '"}';
     $request = wp_remote_post( $this->PostDealsUrl.$bodyrequest->id.'/tags/' , array( 'headers' => $headers, 'body' => $body,'method' => 'POST' ));
 
@@ -313,8 +235,8 @@ class Wpfclientify_Admin {
       wp_mail ( 'efraim@efraim.cat' , 'Error Clientify Creación Etiqueta' ,'Error Clientify Etiqueta '.sanitize_text_field($params['nombre']). ' email '.sanitize_text_field($params['email']) , 'Content-Type: text/html; charset=UTF-8' );
       exit;
     }
-    do_action('wpfunos_log', $userIP.' - '.'Tag $request[response][code]: ' . apply_filters('wpfunos_dumplog', $request['response']['code']  ) );
-    do_action('wpfunos_log', $userIP.' - '.'Tag $request[response][message]: ' . apply_filters('wpfunos_dumplog', $request['response']['message']  ) );
+    $bodyrequesttag = json_decode( $request['body'] );
+    do_action('wpfunos_log', $userIP.' - '.'Crear Tag ' .$bodyrequesttag->id. ': ' .$request['response']['message'] );
 
     $total = strtotime('now') - $timeFirst ;
     do_action('wpfunos_log', $userIP.' - '.'==> Clientify Crear Deal END: '.$total.' sec.');
@@ -330,31 +252,17 @@ class Wpfclientify_Admin {
   private function WpfClientifyGetContact( $id ){
     $userIP = apply_filters('wpfunos_userIP','dummy');
     $URLclientify = $this->GetContactsUrl.$id. '/' ;
-    //do_action('wpfunos_log', $userIP.' - '.'$URL: ' . $URLclientify  );
 
     $headers = array( 'Authorization' => 'Token '.$this->clientifykey , 'Content-Type' => 'application/json');
     $request = wp_remote_post( $URLclientify, array( 'method' => 'GET', 'headers' => $headers, 'timeout' => 45  ) );
     $bodyrequest = json_decode( $request['body'] );
-    //do_action('wpfunos_log', $userIP.' - '.'$bodyrequest: ' . apply_filters('wpfunos_dumplog', $bodyrequest  ) );
 
-    $email = $bodyrequest->emails[0]->email;
-    $name = $bodyrequest->first_name;
-    $phone = $bodyrequest->phones[0]->phone;
-
-    do_action('wpfunos_log', $userIP.' - email=' .$email. ' phone=' .$phone. ' first_name=' .$name);
+    do_action('wpfunos_log', $userIP.' - email=' .$bodyrequest->emails[0]->email. ' phone=' .$bodyrequest->phones[0]->phone. ' first_name=' .$bodyrequest->first_name);
   }
 
   /**
   * $this->WpfClientifyChangePipeline( $params );
   *
-  *$params = array(
-  *  "pipeline" => $pipeline,
-  *  "stage" => $stage,
-  *  "email" => $email,
-  *  "cambios" => $cambios,
-  *  "nombre" => $nombre,
-  *  "contactID" => $contacts,
-  *);
   */
   private function WpfClientifyChangePipeline( $params ){
     $userIP = apply_filters('wpfunos_userIP','dummy');
@@ -384,19 +292,6 @@ class Wpfclientify_Admin {
       if( $deal->pipeline_desc == 'Aseguradoras')             $aseguradoras[] = array( 'id' => $deal->id, 'pipeline' => $deal->pipeline_desc, 'stage' => $deal->pipeline_stage_desc );
     }
 
-    //Servicio botón Presupuesto
-
-    //do_action('wpfunos_log', $userIP.' - '.'$oportunidades: ' . apply_filters('wpfunos_dumplog', $funerarias  ) );
-    /**
-    *[0] = </br> |   [id] = Number: 5082716</br> |   [pipeline] = String: 'Aseguradoras'</br> |   [stage] = String: 'Nuevo interesado'
-    *[1] = </br> |   [id] = Number: 5082543</br> |   [pipeline] = String: 'Aseguradoras'</br> |   [stage] = String: 'Nuevo interesado'
-    *[2] = </br> |   [id] = Number: 5082421</br> |   [pipeline] = String: 'Aseguradoras'</br> |   [stage] = String: 'Nuevo interesado'
-    *[3] = </br> |   [id] = Number: 5082304</br> |   [pipeline] = String: 'Servicios Funerarios'</br> |   [stage] = String: 'comparador funerarias''
-    */
-    /**
-    *[0] = </br> |   [id] = Number: 5103308</br> |   [pipeline] = String: 'Servicios Funerarios'</br> |   [stage] = String: 'seleciono funeraria'</br> |   [origen] = String: 'Servicio botón Presupuesto'
-    *[1] = </br> |   [id] = Number: 5103303</br> |   [pipeline] = String: 'Servicios Funerarios'</br> |   [stage] = String: 'seleciono funeraria'</br> |   [origen] = String: 'Servicio botón Llamar''
-    */
     //do_action('wpfunos_log', $userIP.' - '.'Cantidad oportunidades: ' .count($oportunidades). ' (Servicios Funerarios: ' .count($funerarias). ' Oportunidades descartadas:' .count($descartadas). ' Aseguradoras: ' .count($aseguradoras). ')' );
 
     //si tiene más de una oportunidad
@@ -408,7 +303,6 @@ class Wpfclientify_Admin {
 
     $total = strtotime('now') - $timeFirst ;
     do_action('wpfunos_log', $userIP.' - '.'==> Clientify Cambiar pipelines END: '.$total.' sec.');
-    //return ( $bodyrequest->id );
     return;
   }
 
@@ -419,22 +313,13 @@ class Wpfclientify_Admin {
   */
   private function WpfClientifyUpdataDeal( $params ){
     $userIP = apply_filters('wpfunos_userIP','dummy');
-    do_action('wpfunos_log', $userIP.' - '.'ID: ' . $params['id'] );
     $URLclientify = $this->PostDealsUrl.$params['id']. '/' ;
-    //do_action('wpfunos_log', $userIP.' - '.'$URL: ' . $URLclientify  );
 
     $headers = array( 'Authorization' => 'Token '.$this->clientifykey , 'Content-Type' => 'application/json');
     $body = '{
       "pipeline": "https://api.clientify.net/v1/deals/pipelines/46310/",
       "pipeline_stage":"https://api.clientify.net/v1/deals/pipelines/stages/196246/"
     }';
-
-    /**curl --location --request PATCH 'https://api.clientify.net/v1/deals/5089205/' \
-    --header 'Authorization: Token 4a02e84dc80e316cca5decab08f0839469f92e95' \
-    --header 'Content-Type: application/json' \
-    --data '{ "pipeline": "https://api.clientify.net/v1/deals/pipelines/46310/","pipeline_stage":"https://api.clientify.net/v1/deals/pipelines/stages/196246/" }'
-    */
-
     $request = wp_remote_post( $URLclientify, array( 'headers' => $headers, 'body' => $body, 'method' => 'PATCH'  ) );
 
     if ( is_wp_error($request) ) {
@@ -443,9 +328,7 @@ class Wpfclientify_Admin {
       exit;
     }
     $bodyrequest = json_decode( $request['body'] );
-    //do_action('wpfunos_log', $userIP.' - '.'$bodyrequest: ' . apply_filters('wpfunos_dumplog', $bodyrequest  ) );
-    do_action('wpfunos_log', $userIP.' - '.'Deal $request[response][code]: ' . apply_filters('wpfunos_dumplog', $request['response']['code']  ) );
-    do_action('wpfunos_log', $userIP.' - '.'Deal $request[response][message]: ' . apply_filters('wpfunos_dumplog', $request['response']['message']  ) );
+    do_action('wpfunos_log', $userIP.' - '.'Mover Deal '.$params['id']. ': ' .$request['response']['message']  );
   }
 
 

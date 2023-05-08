@@ -26,6 +26,7 @@ class Wpfclientify_Admin {
     $this->PostContactsUrl = 'https://api.clientify.net/v1/contacts/';
     $this->PostDealsUrl = 'https://api.clientify.net/v1/deals/';
     $this->clientifykey = get_option( 'wpfunos_APIClientifyKeyClientify' );
+    $this->wpfclientify_Admin_Master = new Wpfclientify_Admin_Master();
 
     add_action( 'wpfclientify-process-entry', array( $this,'WpfClientifyProcessEntry' ), 10, 1 );
   }
@@ -35,6 +36,22 @@ class Wpfclientify_Admin {
 
   public function enqueue_scripts() {
     wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/wpfclientify-admin.js', array( 'jquery' ), $this->version, false );
+  }
+  /*********************************/
+  /*****  CRON                ******/
+  /*********************************/
+
+  /**
+  * Register the Cron Job.
+  */
+  public function wpfclientifyCron() {
+    $timeFirst  = strtotime('now');
+    $this->custom_logs('==> Wpclientify hourly begins <==');
+    $this->custom_logs('---');
+    //$this->wpfclientify_Admin_Master->wpfclientifyHourlyCron();
+    $total = strtotime('now') - $timeFirst ;
+    $this->custom_logs('==> Wpclientify hourly ends <== ' .$total.' sec.');
+    $this->custom_logs('---');
   }
 
   /*********************************/
@@ -332,5 +349,26 @@ class Wpfclientify_Admin {
   }
 
 
+
+
+  /**
+  * Utility: create entry in the log file.
+  * $this->custom_logs( $this->dumpPOST($message) );
+  */
+  private function custom_logs($message){
+    $upload_dir = wp_upload_dir();
+    if (is_array($message)) {
+      $message = json_encode($message);
+    }
+    if (!file_exists( $upload_dir['basedir'] . '/wpfunos-logs') ) {
+      mkdir( $upload_dir['basedir'] . '/wpfunos-logs' );
+    }
+    $time = current_time("d-M-Y H:i:s:v");
+    $ban = "#$time: $message\r\n";
+    $file = $upload_dir['basedir'] . '/wpfunos-logs/wpfunos-adminlog-' . current_time("Y-m-d") . '.log';
+    $open = fopen($file, "a");
+    fputs($open, $ban);
+    fclose( $open );
+  }
 
 }

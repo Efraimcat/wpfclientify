@@ -48,7 +48,7 @@ class Wpfclientify_Admin {
     $timeFirst  = strtotime('now');
     $this->custom_logs('==> Wpclientify hourly begins <==');
     $this->custom_logs('---');
-    //$this->wpfclientify_Admin_Master->wpfclientifyHourlyCron();
+    $this->wpfclientify_Admin_Master->wpfclientifyHourlyCron();
     $total = strtotime('now') - $timeFirst ;
     $this->custom_logs('==> Wpclientify hourly ends <== ' .$total.' sec.');
     $this->custom_logs('---');
@@ -162,11 +162,11 @@ class Wpfclientify_Admin {
       "contact_source": "'.sanitize_text_field( $referer ).'",
       "gdpr_accept":    "TRUE",
       "custom_fields": [';
-      if( strlen( $utm['utm_source']   ) > 1 ) $body .= '{"field": "(contactos)utm_source",   "value": "'.sanitize_text_field( $utm['utm_source'] ).  '"},';
-      if( strlen( $utm['utm_medium']   ) > 1 ) $body .= '{"field": "(contactos)utm_medium",   "value": "'.sanitize_text_field( $utm['utm_medium'] ).  '"},';
-      if( strlen( $utm['utm_campaign'] ) > 1 ) $body .= '{"field": "(contactos)utm_campaign", "value": "'.sanitize_text_field( $utm['utm_campaign'] ).'"},';
-      if( strlen( $utm['utm_term']     ) > 1 ) $body .= '{"field": "(contactos)utm_term",     "value": "'.sanitize_text_field( $utm['utm_term'] ).    '"},';
-      $body .= '{"field": "(contactos)pais", "value": "' .sanitize_text_field( $pais ). '"},{"field": "(contactos)ip", "value": "' .sanitize_text_field( $userIP ). '"}]
+      if( strlen( $utm['utm_source']   ) > 1 ) $body .= '{"field": "contactos_utm_source",   "value": "'.sanitize_text_field( $utm['utm_source'] ).  '"},';
+      if( strlen( $utm['utm_medium']   ) > 1 ) $body .= '{"field": "contactos_utm_medium",   "value": "'.sanitize_text_field( $utm['utm_medium'] ).  '"},';
+      if( strlen( $utm['utm_campaign'] ) > 1 ) $body .= '{"field": "contactos_utm_campaign", "value": "'.sanitize_text_field( $utm['utm_campaign'] ).'"},';
+      if( strlen( $utm['utm_term']     ) > 1 ) $body .= '{"field": "contactos_utm_term",     "value": "'.sanitize_text_field( $utm['utm_term'] ).    '"},';
+      $body .= '{"field": "contactos_pais", "value": "' .sanitize_text_field( $pais ). '"},{"field": "contactos_ip", "value": "' .sanitize_text_field( $userIP ). '"}]
     }';
 
     $request = wp_remote_post( $this->PostContactsUrl, array( 'headers' => $headers, 'body' => $body,'method' => 'POST' ));
@@ -218,20 +218,20 @@ class Wpfclientify_Admin {
       "deal_source": "'.sanitize_text_field( $params['form_name'] ).'",
       "expected_closed_date": "'.sanitize_text_field( $fechaentrega->format("Y-m-d") ). '",
       "custom_fields": [';
-      if( strlen( $params['form_name']  ) > 1 ) $body .= '{"field": "(oportunidades)origen",    "value": "'.sanitize_text_field( $params['form_name'] ). '"},';
-      if( strlen( $params['ubicacion']  ) > 1 ) $body .= '{"field": "(oportunidades)ubicacion", "value": "'.sanitize_text_field( $params['ubicacion'] ). '"},';
-      if( strlen( $params['referencia'] ) > 1 ) $body .= '{"field": "(oportunidades)referencia","value": "'.sanitize_text_field( $params['referencia'] ).'"},';
-      if( strlen( $params['cuando']     ) > 1 ) $body .= '{"field": "(oportunidades)cuando",    "value": "'.sanitize_text_field( $params['cuando'] ).    '"},';
-      if( strlen( $params['destino']    ) > 1 ) $body .= '{"field": "(oportunidades)destino",   "value": "'.sanitize_text_field( $params['destino'] ).   '"},';
-      if( strlen( $params['ataud']      ) > 1 ) $body .= '{"field": "(oportunidades)ataud",     "value": "'.sanitize_text_field( $params['ataud'] ).     '"},';
-      if( strlen( $params['velatorio']  ) > 1 ) $body .= '{"field": "(oportunidades)velatorio", "value": "'.sanitize_text_field( $params['velatorio'] ). '"},';
-      if( strlen( $params['ceremonia']  ) > 1 ) $body .= '{"field": "(oportunidades)ceremonia", "value": "'.sanitize_text_field( $params['ceremonia'] ). '"},';
-      if( strlen( $params['origen']     ) > 1 ) $body .= '{"field": "(oportunidades)origen",    "value": "'.sanitize_text_field( $params['origen'] ).    '"},';
-      if( strlen( $params['precio']     ) > 1 ) $body .= '{"field": "(oportunidades)precio",    "value": "'.sanitize_text_field( $params['precio'] ).    '"},';
-      if( strlen( $params['nombreServicio']   ) > 1 ) $body .= '{"field": "(oportunidades)nombreServicio",  "value": "'.sanitize_text_field( $params['nombreServicio'] ).  '"},';
-      if( strlen( $params['nombreFuneraria']  ) > 1 ) $body .= '{"field": "(oportunidades)nombreFuneraria", "value": "'.sanitize_text_field( $params['nombreFuneraria'] ). '"},';
-      if( strlen( $params['telefonoServicio'] ) > 1 ) $body .= '{"field": "(oportunidades)telefonoServicio","value": "'.sanitize_text_field( $params['telefonoServicio'] ).'"},';
-      $body .= '{"field": "(oportunidades)origen",    "value": "' .sanitize_text_field( $params['origen'] ). '"},{"field": "(oportunidades)ip",    "value": "' .sanitize_text_field( $userIP ). '"}]
+      if( strlen( $params['form_name']  ) > 1 ) $body .= '{"field": "oportunidades_origen",    "value": "'.sanitize_text_field( $params['form_name'] ). '"},';
+      if( strlen( $params['ubicacion']  ) > 1 ) $body .= '{"field": "oportunidades_ubicacion", "value": "'.sanitize_text_field( $params['ubicacion'] ). '"},';
+      if( strlen( $params['referencia'] ) > 1 ) $body .= '{"field": "oportunidades_referencia","value": "'.sanitize_text_field( $params['referencia'] ).'"},';
+      if( strlen( $params['cuando']     ) > 1 ) $body .= '{"field": "oportunidades_cuando",    "value": "'.sanitize_text_field( $params['cuando'] ).    '"},';
+      if( strlen( $params['destino']    ) > 1 ) $body .= '{"field": "oportunidades_destino",   "value": "'.sanitize_text_field( $params['destino'] ).   '"},';
+      if( strlen( $params['ataud']      ) > 1 ) $body .= '{"field": "oportunidades_ataud",     "value": "'.sanitize_text_field( $params['ataud'] ).     '"},';
+      if( strlen( $params['velatorio']  ) > 1 ) $body .= '{"field": "oportunidades_velatorio", "value": "'.sanitize_text_field( $params['velatorio'] ). '"},';
+      if( strlen( $params['ceremonia']  ) > 1 ) $body .= '{"field": "oportunidades_ceremonia", "value": "'.sanitize_text_field( $params['ceremonia'] ). '"},';
+      if( strlen( $params['origen']     ) > 1 ) $body .= '{"field": "oportunidades_origen",    "value": "'.sanitize_text_field( $params['origen'] ).    '"},';
+      if( strlen( $params['precio']     ) > 1 ) $body .= '{"field": "oportunidades_precio",    "value": "'.sanitize_text_field( $params['precio'] ).    '"},';
+      if( strlen( $params['nombreServicio']   ) > 1 ) $body .= '{"field": "oportunidades_nombreServicio",  "value": "'.sanitize_text_field( $params['nombreServicio'] ).  '"},';
+      if( strlen( $params['nombreFuneraria']  ) > 1 ) $body .= '{"field": "oportunidades_nombreFuneraria", "value": "'.sanitize_text_field( $params['nombreFuneraria'] ). '"},';
+      if( strlen( $params['telefonoServicio'] ) > 1 ) $body .= '{"field": "oportunidades_telefonoServicio","value": "'.sanitize_text_field( $params['telefonoServicio'] ).'"},';
+      $body .= '{"field": "oportunidades_origen",    "value": "' .sanitize_text_field( $params['origen'] ). '"},{"field": "oportunidades_ip",    "value": "' .sanitize_text_field( $userIP ). '"}]
     }';
     $request = wp_remote_post( $this->PostDealsUrl, array( 'headers' => $headers, 'body' => $body,'method' => 'POST' ));
 
@@ -300,7 +300,7 @@ class Wpfclientify_Admin {
     foreach ($deals as $key => $deal) {
 
       foreach ($deal->custom_fields as $key => $value) {
-        if( $value->field == '(oportunidades)origen') $origen = $value->value;
+        if( $value->field == 'oportunidades_origen') $origen = $value->value;
       }
 
       $oportunidades[] = array( 'id' => $deal->id, 'pipeline' => $deal->pipeline_desc, 'stage' => $deal->pipeline_stage_desc);

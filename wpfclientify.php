@@ -8,7 +8,7 @@
 * Plugin Name:       WpfClientify
 * Plugin URI:        https://github.com/Efraimcat/wpfclientify/
 * Description:       Funcionalidades para funos.es Clientify
-* Version:           1.2.0
+* Version:           1.2.1
 * Author:            Efraim Bayarri
 * Author URI:        https://efraim.cat
 * License:           GPL-2.0+
@@ -24,7 +24,7 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
-define( 'WPFCLIENTIFY_VERSION', '1.2.0' );
+define( 'WPFCLIENTIFY_VERSION', '1.2.1' );
 
 function activate_wpfclientify() {
 	require_once plugin_dir_path( __FILE__ ) . 'includes/class-wpfclientify-activator.php';
